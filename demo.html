@@ -1,0 +1,90 @@
+<!--
+ * @Author: your name
+ * @Date: 2020-12-30 13:50:29
+ * @LastEditTime: 2020-12-31 10:20:54
+ * @LastEditors: Please set LastEditors
+ * @Description: In User Settings Edit
+ * @FilePath: \CBIS2.0d:\牙\自己资料\粒子\demo\demo.html
+-->
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
+<canvas id="myCanvas" width="800" height="600" style="background:#091137">浏览器不支持canvas</canvas>
+<input type="button" value="停" onclick="stopTime()" />
+</body>
+<script type="text/javascript">
+    var setTime;
+    var canvas=document.getElementById("myCanvas");
+    var ctx=canvas.getContext("2d");
+    var imgX = 400
+    var imgY = 400
+
+    var image = new Image();
+    image.src='logo.png';
+
+    var pixels=[];  //存储像素数据
+    var imageData;
+    image.onload=function(){
+        ctx.drawImage(image,200,100,imgX,imgY);
+        imageData=ctx.getImageData(200,100,imgX,imgY);    //获取图表像素信息
+        getPixels();    //获取所有像素
+        setTime = setInterval(() => {
+            clearCanvas();
+            drawPic();  //绘制图像
+        }, 200)
+    };
+
+    function getPixels(){
+        var pos=0;
+        var data=imageData.data;    //RGBA的一维数组数据
+        var bili = 30 // 数值越大，绘制的越模糊
+        console.log('data', data)
+        //源图像的高度和宽度为200px
+        for(var i=1;i<=imgX;i++){
+            for(var j=1;j<=imgY;j++){
+                pos=[(i-1)*imgX+(j-1)]*4; //取得像素位置
+                if(data[pos]>=0){
+                    var pixel={
+                        x:100+j+Math.random()*bili, //重新设置每个像素的位置信息
+                        y:100+i+Math.random()*bili, //重新设置每个像素的位置信息
+                        fillStyle:'rgba('+data[pos]+','+(data[pos+1])+','+(data[pos+2])+','+(data[pos+3])+')'
+                    }
+                    pixels.push(pixel);
+                }
+
+            }
+        }
+    }
+
+    function drawPic(){
+        var canvas=document.getElementById("myCanvas");
+        var ctx=canvas.getContext("2d");
+        ctx.clearRect(0,0,600,400);
+        var len=pixels.length,curr_pixel=null;
+
+        for(var i=0;i<len;i++){
+            curr_pixel=pixels[i];
+            ctx.fillStyle=curr_pixel.fillStyle;
+            var randomX = curr_pixel.x+(Math.random()-0.5)*1 
+            var randomY = curr_pixel.y+(Math.random()-0.5)*1 
+            pixels[i].x = randomX
+            pixels[i].y = randomY
+            ctx.fillRect(randomX,randomY,1,1);
+        }
+    }
+    function stopTime() {
+        clearInterval(setTime)
+    }
+    function clearCanvas(){  
+        let cxt=document.getElementById("myCanvas").getContext("2d");
+        cxt.clearRect(0,0,cxt.canvas.width,cxt.canvas.height);  
+    }
+
+
+</script>
+
+</html>
