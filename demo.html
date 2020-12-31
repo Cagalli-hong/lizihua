@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2020-12-30 13:50:29
- * @LastEditTime: 2020-12-31 10:20:54
+ * @LastEditTime: 2020-12-31 13:46:40
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \CBIS2.0d:\牙\自己资料\粒子\demo\demo.html
@@ -13,15 +13,18 @@
     <title></title>
 </head>
 <body>
-<canvas id="myCanvas" width="800" height="600" style="background:#091137">浏览器不支持canvas</canvas>
+<canvas id="myCanvas" width="800" height="800" style="background:#091137">浏览器不支持canvas</canvas>
 <input type="button" value="停" onclick="stopTime()" />
 </body>
 <script type="text/javascript">
     var setTime;
     var canvas=document.getElementById("myCanvas");
     var ctx=canvas.getContext("2d");
-    var imgX = 400
-    var imgY = 400
+    var imgX = 500
+    var imgY = 500
+    var Density = 0.95// 取点的疏密程度，0最大，1为0
+    var maxWidth = 3 // 随机点的最大半径
+    var move = 10 // 运动流畅度，越小越流畅
 
     var image = new Image();
     image.src='logo.png';
@@ -35,22 +38,22 @@
         setTime = setInterval(() => {
             clearCanvas();
             drawPic();  //绘制图像
-        }, 200)
+        }, 160)
     };
 
     function getPixels(){
         var pos=0;
         var data=imageData.data;    //RGBA的一维数组数据
         var bili = 30 // 数值越大，绘制的越模糊
-        console.log('data', data)
         //源图像的高度和宽度为200px
         for(var i=1;i<=imgX;i++){
             for(var j=1;j<=imgY;j++){
                 pos=[(i-1)*imgX+(j-1)]*4; //取得像素位置
-                if(data[pos]>=0){
+                if(data[pos]>=0 && Math.random()>=Density){
                     var pixel={
                         x:100+j+Math.random()*bili, //重新设置每个像素的位置信息
                         y:100+i+Math.random()*bili, //重新设置每个像素的位置信息
+                        r: Math.random()*maxWidth, // 随机赋值半径
                         fillStyle:'rgba('+data[pos]+','+(data[pos+1])+','+(data[pos+2])+','+(data[pos+3])+')'
                     }
                     pixels.push(pixel);
@@ -69,11 +72,12 @@
         for(var i=0;i<len;i++){
             curr_pixel=pixels[i];
             ctx.fillStyle=curr_pixel.fillStyle;
-            var randomX = curr_pixel.x+(Math.random()-0.5)*1 
-            var randomY = curr_pixel.y+(Math.random()-0.5)*1 
+            var randomX = curr_pixel.x+(Math.random()-0.5)*move
+            var randomY = curr_pixel.y+(Math.random()-0.5)*move 
+            // console.log('randomX', randomX, curr_pixel.x)
             pixels[i].x = randomX
             pixels[i].y = randomY
-            ctx.fillRect(randomX,randomY,1,1);
+            ctx.fillRect(randomX,randomY,curr_pixel.r,curr_pixel.r);
         }
     }
     function stopTime() {
