@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2020-12-30 13:50:29
- * @LastEditTime: 2020-12-31 13:46:40
+ * @LastEditTime: 2021-01-05 14:32:18
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \CBIS2.0d:\牙\自己资料\粒子\demo\demo.html
@@ -22,9 +22,12 @@
     var ctx=canvas.getContext("2d");
     var imgX = 500
     var imgY = 500
-    var Density = 0.95// 取点的疏密程度，0最大，1为0
+    var Density = 0.9995// 取点的疏密程度，0最大，1为0
     var maxWidth = 3 // 随机点的最大半径
-    var move = 10 // 运动流畅度，越小越流畅
+    var move = 3 // 运动流畅度，越小越流畅
+    var totalmaxcount = 50 // 加点次数
+    var addPointcount = 0
+    var stayTime = 10000 // 设置全部点停留多少秒
 
     var image = new Image();
     image.src='logo.png';
@@ -34,12 +37,43 @@
     image.onload=function(){
         ctx.drawImage(image,200,100,imgX,imgY);
         imageData=ctx.getImageData(200,100,imgX,imgY);    //获取图表像素信息
-        getPixels();    //获取所有像素
-        setTime = setInterval(() => {
+        getPixels();    //获取初始化像素点
+        addPoint();        // 定时器取像素点
+
+        // 首次绘制
+        clearCanvas();
+        drawPic();
+
+        // 定时器绘制
+        setTime2 = setInterval(() => {
             clearCanvas();
             drawPic();  //绘制图像
         }, 160)
     };
+
+    function addPoint() {
+        setTime = setInterval(() => {
+            addPointcount++
+            if(addPointcount<totalmaxcount){
+                getPixels()
+            }else{
+                clearInterval(setTime)
+                settime4 = setTimeout(reducePoinit, stayTime)
+                
+            }
+        }, 200)
+    }
+    function reducePoinit() {
+        setTime3 = setInterval(() => {
+            if(pixels.length>127){ // 127是取的首次取点的个数
+                pixels.splice(0, 100)
+            }else{
+                clearInterval(setTime3)
+                addPointcount = 0
+                addPoint()
+            }
+        }, 200)
+    }
 
     function getPixels(){
         var pos=0;
@@ -58,7 +92,6 @@
                     }
                     pixels.push(pixel);
                 }
-
             }
         }
     }
@@ -68,7 +101,6 @@
         var ctx=canvas.getContext("2d");
         ctx.clearRect(0,0,600,400);
         var len=pixels.length,curr_pixel=null;
-
         for(var i=0;i<len;i++){
             curr_pixel=pixels[i];
             ctx.fillStyle=curr_pixel.fillStyle;
@@ -81,7 +113,7 @@
         }
     }
     function stopTime() {
-        clearInterval(setTime)
+        clearInterval(setTime2)
     }
     function clearCanvas(){  
         let cxt=document.getElementById("myCanvas").getContext("2d");
